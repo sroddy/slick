@@ -94,9 +94,8 @@
                 animating: false,
                 dragging: false,
                 autoPlayTimer: null,
-                currentDirection: 0,
-                currentLeft: null,
                 currentSlide: 0,
+                currentLeft: null,
                 direction: 1,
                 $dots: null,
                 listWidth: null,
@@ -1327,12 +1326,11 @@
             _.$slideTrack.width(Math.ceil((_.slideWidth * _.$slideTrack.children('.slick-slide').length)));
 
         } else if (_.options.variableWidth === true) {
-            var trackWidth = 0;
-            _.slideWidth = Math.ceil(_.listWidth / _.options.slidesToShow);
+            _.slideWidth = 0;
             _.$slideTrack.children('.slick-slide').each(function(){
-                trackWidth += Math.ceil($(this).outerWidth(true));
+                _.slideWidth += Math.ceil($(this).outerWidth(true));
             });
-            _.$slideTrack.width(Math.ceil(trackWidth) + 1);
+            _.$slideTrack.width(Math.ceil(_.slideWidth) + 1);
         } else {
             _.slideWidth = Math.ceil(_.listWidth);
             _.$slideTrack.height(Math.ceil((_.$slides.first().outerHeight(true) * _.$slideTrack.children('.slick-slide').length)));
@@ -1741,7 +1739,7 @@
 
     Slick.prototype.swipeEnd = function(event) {
 
-        var _ = this, slideCount;
+        var _ = this, slideCount, slidesTraversed, swipeDiff;
 
         _.dragging = false;
 
@@ -1753,16 +1751,21 @@
 
         if (_.touchObject.swipeLength >= _.touchObject.minSwipe) {
 
+            if(_.options.swipeToSlide === true) {
+                slidesTraversed = Math.round(_.touchObject.swipeLength / _.slideWidth);
+                slideCount = slidesTraversed
+            } else {
+                slideCount = _.options.slidesToScroll;
+            }
+
             switch (_.swipeDirection()) {
                 case 'left':
-                    _.slideHandler(_.currentSlide + _.getSlideCount());
-                    _.currentDirection = 0;
+                    _.slideHandler(_.currentSlide + slideCount);
                     _.touchObject = {};
                     break;
 
                 case 'right':
-                    _.slideHandler(_.currentSlide - _.getSlideCount());
-                    _.currentDirection = 1;
+                    _.slideHandler(_.currentSlide - slideCount);
                     _.touchObject = {};
                     break;
             }
